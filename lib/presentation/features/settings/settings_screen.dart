@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/city.dart';
 import '../../../domain/entities/reminder_config.dart';
@@ -20,13 +22,27 @@ class SettingsScreen extends ConsumerWidget {
     final citiesAsync = ref.watch(myCitiesProvider);
     final cities = citiesAsync.valueOrNull ?? const <City>[];
 
+    // 「限行数据」入口不受城市数量限制——即使还没绑车牌，
+    // 用户也应当能进入日历/车牌/城市页去添加。否则这些页面就成了死路。
     if (cities.isEmpty) {
-      return const CarAdaptiveScaffold(
+      return CarAdaptiveScaffold(
         title: '设置',
-        primary: EmptyState(
-          icon: Icons.settings_outlined,
-          title: '暂无配置项',
-          description: '添加关注城市后可配置提醒',
+        primary: ListView(
+          padding: const EdgeInsets.only(
+            top: AppSizes.gap16,
+            bottom: AppSizes.gap32,
+          ),
+          children: const [
+            EmptyState(
+              icon: Icons.settings_outlined,
+              title: '尚未绑定车牌',
+              description: '添加车牌并关注城市后，即可配置限行提醒',
+            ),
+            SizedBox(height: AppSizes.gap24),
+            DataManagementSection(),
+            SizedBox(height: AppSizes.gap24),
+            _AboutSection(),
+          ],
         ),
       );
     }
@@ -49,9 +65,96 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: AppSizes.gap24),
           const ScheduledListSection(),
           const SizedBox(height: AppSizes.gap24),
+          const DataManagementSection(),
+          const SizedBox(height: AppSizes.gap24),
           const _AboutSection(),
         ],
       ),
+    );
+  }
+}
+
+/// 限行数据管理入口。
+///
+/// 日历 / 车牌 / 城市三页在 2026-10 导航调整中已从底部导航降级，
+/// 这里是它们在手机版上的主要入口。
+class DataManagementSection extends StatelessWidget {
+  const DataManagementSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SectionHeader(
+          title: '限行数据',
+          subtitle: '管理车牌、关注城市与日历视图',
+        ),
+        Card(
+          child: Column(
+            children: [
+              _DataEntryTile(
+                iconName: TaillimitIcons.vehicle,
+                label: '我的车牌',
+                description: '绑定与停用车辆',
+                onTap: () => context.push(Routes.vehicles),
+              ),
+              const Divider(height: 1, indent: AppSizes.gap16),
+              _DataEntryTile(
+                iconName: TaillimitIcons.location,
+                label: '关注城市',
+                description: '多城市限行规则',
+                onTap: () => context.push(Routes.cities),
+              ),
+              const Divider(height: 1, indent: AppSizes.gap16),
+              _DataEntryTile(
+                iconName: TaillimitIcons.calendar,
+                label: '限行日历',
+                description: '月视图与历史查询',
+                onTap: () => context.push(Routes.calendar),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DataEntryTile extends StatelessWidget {
+  const _DataEntryTile({
+    required this.iconName,
+    required this.label,
+    required this.description,
+    required this.onTap,
+  });
+
+  final String iconName;
+  final String label;
+  final String description;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: onTap,
+      leading: IconDataWidget(
+        name: iconName,
+        size: 24,
+        color: AppColors.textSecondary,
+      ),
+      title: Text(label),
+      subtitle: Text(
+        description,
+        style: const TextStyle(color: AppColors.textTertiary, fontSize: 12),
+      ),
+      trailing: const IconDataWidget(
+        name: TaillimitIcons.chevronRight,
+        size: 20,
+        color: AppColors.textTertiary,
+      ),
+      // 保证整行可点，满足 44pt 触控目标
+      minTileHeight: AppSizes.touchTarget,
     );
   }
 }

@@ -139,16 +139,16 @@ void main() {
   });
 
   group('TaillimitIcons', () {
-    test('导出 19 枚图标且无重复', () {
-      expect(TaillimitIcons.all.length, 19);
-      expect(TaillimitIcons.all.toSet().length, 19);
+    test('导出 25 枚图标且无重复', () {
+      expect(TaillimitIcons.all.length, 25);
+      expect(TaillimitIcons.all.toSet().length, 25);
     });
 
     test('分类数量符合设计规范', () {
       const List<String> nav = [
         TaillimitIcons.today,
-        TaillimitIcons.calendar,
-        TaillimitIcons.vehicle,
+        TaillimitIcons.radio,
+        TaillimitIcons.noise,
         TaillimitIcons.settings,
       ];
       const List<String> state = [
@@ -174,8 +174,29 @@ void main() {
         TaillimitIcons.plus,
         TaillimitIcons.check,
       ];
-      expect(nav.length + state.length + info.length + alert.length + action.length,
-          equals(TaillimitIcons.all.length));
+      // 广播与白噪音新增的媒体控制图标
+      const List<String> media = [
+        TaillimitIcons.play,
+        TaillimitIcons.pause,
+        TaillimitIcons.stop,
+        TaillimitIcons.timer,
+      ];
+      // 导航图标随四栏改造调整过：日历/车牌/城市已降级为设置入口，
+      // 这里只统计仍属于图标的 calendar 与 vehicle
+      const List<String> deprecatedNav = [
+        TaillimitIcons.calendar,
+        TaillimitIcons.vehicle,
+      ];
+      expect(
+        nav.length +
+            state.length +
+            info.length +
+            alert.length +
+            action.length +
+            media.length +
+            deprecatedNav.length,
+        equals(TaillimitIcons.all.length),
+      );
     });
 
     test('描边宽度为 1.75', () {

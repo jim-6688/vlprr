@@ -56,6 +56,14 @@ class TaillimitIcons {
   static const String plus = 'plus';
   static const String check = 'check';
 
+  // —— 媒体（新增）——
+  static const String radio = 'radio';
+  static const String noise = 'noise';
+  static const String play = 'play';
+  static const String pause = 'pause';
+  static const String timer = 'timer';
+  static const String stop = 'stop';
+
   /// 全部图标名称，供设置页的"图标预览"调试网格使用。
   static const List<String> all = <String>[
     today, calendar, vehicle, settings,
@@ -63,6 +71,7 @@ class TaillimitIcons {
     live, cached, plate, location, tail,
     alert, bell, voice,
     chevronRight, close, plus, check,
+    radio, noise, play, pause, timer, stop,
   ];
 
   /// 按名称取图标。未知名称回退到 [settings]，避免抛异常导致整页崩溃。
@@ -419,6 +428,76 @@ class _IconPainter extends CustomPainter {
             ..lineTo(18.6, 7.2),
           st,
         );
+
+      // —— 媒体 ——
+      case TaillimitIcons.radio:
+        // 收音机：天线 + 机身 + 喇叭网栅。轮廓为圆角矩形，
+        // 与「状态」类的圆、「容器」类的圆角方形成区分（天线是唯一破形元素）。
+        // 天线
+        _line(canvas, const Offset(7.6, 8.6), const Offset(15.4, 3.6), st);
+        canvas.drawCircle(const Offset(15.8, 3.3), 1.15, fl);
+        // 机身
+        _rrect(canvas, _rect(3.0, 8.6, 18.0, 12.4), 2.6, st);
+        // 喇叭网栅（左侧两条竖线）
+        _line(canvas, const Offset(5.8, 12.4), const Offset(5.8, 16.4), st);
+        _line(canvas, const Offset(8.2, 12.4), const Offset(8.2, 16.4), st);
+        // 调谐刻度（右侧竖排短线）
+        _line(canvas, const Offset(11.4, 11.4), const Offset(19.0, 11.4), st);
+        // 旋钮
+        canvas.drawCircle(const Offset(15.2, 16.0), 2.0, st);
+        canvas.drawCircle(const Offset(15.2, 16.0), 0.85, fl);
+
+      case TaillimitIcons.noise:
+        // 白噪音：三道递进的波形弧线，表达"连续的、无规律的声波"。
+        // 轮廓是"开放弧"，与全部封闭类图形（圆/方/三角）最大程度区分。
+        for (int i = 0; i < 3; i++) {
+          final double r = 3.2 + i * 3.4;
+          canvas.drawArc(
+            _rect(12.0 - r, 12.0 - r, r * 2, r * 2),
+            -0.9,
+            1.8,
+            false,
+            st,
+          );
+        }
+        // 声源点
+        canvas.drawCircle(const Offset(6.2, 12.0), 1.6, fl);
+
+      case TaillimitIcons.play:
+        canvas.drawPath(
+          Path()
+            ..moveTo(8.2, 5.4)
+            ..lineTo(19.0, 12.0)
+            ..lineTo(8.2, 18.6)
+            ..close(),
+          st,
+        );
+
+      case TaillimitIcons.pause:
+        _line(canvas, const Offset(9.0, 5.6), const Offset(9.0, 18.4), st);
+        _line(canvas, const Offset(15.0, 5.6), const Offset(15.0, 18.4), st);
+
+      case TaillimitIcons.stop:
+        _rrect(canvas, _rect(6.4, 6.4, 11.2, 11.2), 1.8, st);
+
+      case TaillimitIcons.timer:
+        // 闹钟：钟面 + 顶部提手 + 双侧铃铛脚
+        _circle(canvas, const Offset(12, 13.2), 7.2, st);
+        // 提手
+        canvas.drawPath(
+          Path()
+            ..moveTo(9.6, 6.4)
+            ..lineTo(10.8, 4.4)
+            ..lineTo(13.2, 4.4)
+            ..lineTo(14.4, 6.4),
+          st,
+        );
+        // 指针
+        _line(canvas, const Offset(12, 9.6), const Offset(12, 13.2), st);
+        _line(canvas, const Offset(12, 13.2), const Offset(14.6, 15.0), st);
+        // 铃铛脚
+        _line(canvas, const Offset(4.2, 10.2), const Offset(6.2, 12.2), st);
+        _line(canvas, const Offset(19.8, 10.2), const Offset(17.8, 12.2), st);
 
       // 未知名称静默降级为设置图标——不抛异常，避免一处拼写错误导致整页崩溃
       default:
