@@ -1,0 +1,10 @@
+{
+  "name": "tail_limit_alert_plugin",
+  "version": "0.1.0",
+  "description": "TailLimit 强提醒插件鸿蒙端（系统代理提醒 + 中文 TTS）",
+  "main": "index.ets",
+  "author": "TailLimit",
+  "license": "MIT",
+  "dependencies": {},
+  "types": "index.d.ts"
+}

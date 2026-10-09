@@ -1,0 +1,26 @@
+name: tail_limit_alert_plugin
+description: "TailLimit 强提醒插件 — 限号强提醒的三端原生实现（Android 全屏意图+精确闹钟+TTS / iOS 时效性通知 / 鸿蒙系统代理提醒）。"
+version: 0.1.0
+publish_to: "none"
+
+environment:
+  # Built-in Kotlin 要求 Flutter 3.44+ / Dart 3.12+，并使用 kotlin.compilerOptions{}
+  # 参考：https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
+  sdk: ">=3.12.0 <4.0.0"
+  flutter: ">=3.44.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.taillimit.alert
+        pluginClass: TailLimitAlertPlugin
+      ios:
+        pluginClass: TailLimitAlertPlugin
+      ohos:
+        pluginClass: TailLimitAlertPlugin
+        # Flutter-OH 会读取 ohos/ 目录作为鸿蒙平台实现

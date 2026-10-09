@@ -1,0 +1,11 @@
+{
+  "module": {
+    "name": "tail_limit_alert_plugin",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet",
+      "car"
+    ]
+  }
+}

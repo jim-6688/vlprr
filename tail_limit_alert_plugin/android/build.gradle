@@ -1,0 +1,59 @@
+buildscript {
+    repositories {
+        // 国内镜像优先（沙箱/国内网络环境下直连 google() 会超时）
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        google()
+        mavenCentral()
+    }
+}
+
+allprojects {
+    repositories {
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        google()
+        mavenCentral()
+    }
+}
+
+// 说明：本插件含 Kotlin 源码，但**不**显式 apply 'kotlin-android'。
+// Flutter 3.44+ 采用 Built-in Kotlin：宿主由 Flutter Gradle Plugin 统一提供
+// Kotlin 编译能力，插件侧只需声明 kotlin.compilerOptions{} 配置 JVM target。
+// 参考：https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
+apply plugin: 'com.android.library'
+
+// Flutter 插件约定：group 与 version 由宿主注入
+group 'com.taillimit.alert'
+version '1.0-SNAPSHOT'
+
+android {
+    namespace 'com.taillimit.alert'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 34
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.annotation:annotation:1.8.2'
+}

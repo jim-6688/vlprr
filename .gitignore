@@ -1,0 +1,84 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Widget Preview related
+.widget_preview/
+
+# ——————————————————————————————————————————————
+# 鸿蒙（HarmonyOS / OpenHarmony）
+# ohos/ 由 tool/bootstrap_ohos.sh 生成，不入版本控制（含本地签名与 SDK 绝对路径）
+# ——————————————————————————————————————————————
+/ohos/
+**/ohos/build/
+**/ohos/.hvigor/
+**/ohos/oh_modules/
+**/ohos/local.properties
+**/ohos/.cxx/
+*.hap
+*.har
+*.hsp
+
+# ——————————————————————————————————————————————
+# 密钥与敏感配置（重要）
+# API Key 一律通过 --dart-define 注入，绝不落库
+# ——————————————————————————————————————————————
+*.keystore
+*.jks
+key.properties
+**/local.properties
+.env
+.env.*
+!env.example
+
+# ——————————————————————————————————————————————
+# 平台构建产物
+# ——————————————————————————————————————————————
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/Flutter.framework
+/ios/Flutter/Flutter.podspec
+/ios/Flutter/ephemeral/
+/macos/Flutter/ephemeral/

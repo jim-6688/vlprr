@@ -1,0 +1,23 @@
+# TailLimit 静态分析配置：在 flutter_lints 基础上收紧
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.mocks.dart"
+    - "build/**"
+    - "ohos/**"
+    - "ios/**"
+    - "android/**"
+
+linter:
+  rules:
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    prefer_final_locals: true
+    unnecessary_late: true
+    always_declare_return_types: true
+    unawaited_futures: true
+    directives_ordering: true
+    sort_pub_dependencies: false
+    prefer_single_quotes: true

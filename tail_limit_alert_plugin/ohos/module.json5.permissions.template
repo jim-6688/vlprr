@@ -1,0 +1,52 @@
+{
+  "_comment": "以下内容需手动合并到宿主 HarmonyOS 工程 entry/src/main/module.json5 的 module 节点中。Flutter-OH 插件本身无法直接声明宿主权限，必须由宿主工程声明。",
+  "requestPermissions": [
+    {
+      "name": "ohos.permission.NOTIFICATION_CONTROLLER",
+      "reason": "$string:reason_notification",
+      "usedScene": {
+        "abilities": [
+          "EntryAbility"
+        ],
+        "when": "inuse"
+      }
+    },
+    {
+      "name": "ohos.permission.PUBLISH_AGENT_REMINDER",
+      "reason": "$string:reason_agent_reminder",
+      "usedScene": {
+        "abilities": [
+          "EntryAbility"
+        ],
+        "when": "always"
+      }
+    },
+    {
+      "name": "ohos.permission.KEEP_BACKGROUND_RUNNING",
+      "reason": "$string:reason_background",
+      "usedScene": {
+        "abilities": [
+          "EntryAbility"
+        ],
+        "when": "always"
+      }
+    },
+    {
+      "name": "ohos.permission.INTERNET",
+      "reason": "$string:reason_internet",
+      "usedScene": {
+        "abilities": [
+          "EntryAbility"
+        ],
+        "when": "inuse"
+      }
+    }
+  ],
+  "_stringResources": {
+    "_comment": "对应 entry/src/main/resources/base/element/string.json 中需补充的条目",
+    "reason_notification": "用于发送限号提醒通知",
+    "reason_agent_reminder": "用于在限号当日准点触发强提醒",
+    "reason_background": "用于在后台保持提醒排程有效",
+    "reason_internet": "用于从交管数据服务获取实时限号信息"
+  }
+}
