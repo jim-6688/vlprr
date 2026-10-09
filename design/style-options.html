@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TailLimit 视觉方向 — 三方案对比</title>
+<style>
+  :root{
+    --bg:#0E0F12; --panel:#16181D; --panel2:#1D2026; --line:#272B33;
+    --t1:#EDEEF1; --t2:#9AA0AC; --t3:#666D7A;
+    --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    --mono:"SF Mono","JetBrains Mono","Roboto Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--t1);font-family:var(--font);
+       -webkit-font-smoothing:antialiased;padding:48px 40px 80px}
+  .wrap{max-width:1360px;margin:0 auto}
+
+  .doc-head{margin-bottom:14px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .doc-head h1{font-size:26px;font-weight:700;letter-spacing:-.4px}
+  .doc-head .sub{font-size:13px;color:var(--t3);font-family:var(--mono)}
+  .rule-note{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:44px;
+             padding-left:14px;border-left:2px solid var(--line);max-width:820px}
+
+  .opt{margin-bottom:64px}
+  .opt-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:22px}
+  .opt-idx{font-family:var(--mono);font-size:12px;color:var(--t3);
+           border:1px solid var(--line);border-radius:6px;padding:4px 9px;
+           flex-shrink:0;margin-top:2px}
+  .opt-head h2{font-size:19px;font-weight:650;letter-spacing:-.2px;margin-bottom:5px}
+  .opt-head p{font-size:13px;color:var(--t2);line-height:1.65;max-width:760px}
+  .opt-head .tagline{font-size:12px;color:var(--t3);font-family:var(--mono);margin-top:6px}
+
+  /* ---------- 色板 ---------- */
+  .swatches{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:26px}
+  .sw{width:96px;border-radius:9px;overflow:hidden;border:1px solid var(--line);
+      background:var(--panel)}
+  .sw .chip{height:56px}
+  .sw .meta{padding:7px 9px 8px}
+  .sw .nm{font-size:10px;color:var(--t2);font-family:var(--mono);
+          display:block;letter-spacing:.2px}
+  .sw .hx{font-size:10px;color:var(--t3);font-family:var(--mono);margin-top:2px;display:block}
+
+  /* ---------- 屏幕排布 ---------- */
+  .screens{display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
+  .screen{width:295px;flex-shrink:0}
+  .screen .cap{font-size:11px;color:var(--t3);font-family:var(--mono);
+               margin-bottom:9px;letter-spacing:.3px}
+
+  /* 手机外框 */
+  .phone{width:295px;height:640px;border-radius:34px;overflow:hidden;position:relative;
+         border:1px solid var(--line)}
+  .sbar{height:36px;display:flex;align-items:center;justify-content:space-between;
+        padding:0 20px;font-size:11px;font-weight:600;letter-spacing:.2px;opacity:.85}
+  .isl{position:absolute;top:9px;left:50%;transform:translateX(-50%);
+       width:74px;height:20px;border-radius:11px;background:#000;z-index:9}
+  .body{height:calc(100% - 36px);padding:0 18px 0;overflow:hidden;
+        display:flex;flex-direction:column}
+
+  .navrow{display:flex;align-items:center;justify-content:space-between;
+          padding:4px 0 14px;flex-shrink:0}
+  .navrow .t{font-size:15px;font-weight:650;letter-spacing:-.2px}
+  .navrow .ic{font-size:13px;opacity:.5}
+
+  .gap{height:14px;flex-shrink:0}
+
+  /* 状态块 */
+  .hero{border-radius:20px;padding:20px 18px;position:relative;overflow:hidden}
+  .hero .k{font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;
+           font-weight:600;opacity:.62;margin-bottom:9px}
+  .hero .big{font-size:32px;font-weight:750;letter-spacing:-1.1px;line-height:1.05}
+  .hero .sub{font-size:12.5px;opacity:.72;margin-top:7px;line-height:1.45}
+  .hero .plate{position:absolute;top:18px;right:16px;font-family:var(--mono);
+               font-size:10.5px;padding:4px 8px;border-radius:5px;
+               border:1px solid rgba(255,255,255,.22);letter-spacing:.4px}
+
+  .row2{display:flex;gap:11px}
+  .mini{flex:1;border-radius:15px;padding:14px 13px}
+  .mini .k{font-size:10px;letter-spacing:.5px;text-transform:uppercase;
+           font-weight:600;opacity:.55;margin-bottom:6px}
+  .mini .v{font-size:17px;font-weight:680;letter-spacing:-.4px;line-height:1.15}
+  .mini .d{font-size:10.5px;opacity:.6;margin-top:4px}
+
+  .list{border-radius:15px;overflow:hidden}
+  .li{display:flex;align-items:center;justify-content:space-between;
+      padding:13px 14px;font-size:12.5px}
+  .li + .li{border-top:1px solid rgba(255,255,255,.055)}
+  .li .l{display:flex;align-items:center;gap:9px}
+  .dot{width:6px;height:6px;border-radius:3px;flex-shrink:0}
+  .li .r{font-size:11px;opacity:.5;font-family:var(--mono)}
+
+  /* 底部药丸 Tab */
+  .tabwrap{margin-top:auto;padding:12px 0 16px;flex-shrink:0}
+  .pill{height:56px;border-radius:33px;display:flex;align-items:center;
+        gap:3px;padding:4px}
+  .tab{flex:1;height:48px;border-radius:24px;display:flex;flex-direction:column;
+       align-items:center;justify-content:center;gap:3px}
+  .tab .i{font-size:14px;line-height:1}
+  .tab .l{font-size:8.5px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+  .tab.on{}
+
+  /* ---------- 强提醒弹层 ---------- */
+  .alertphone{border-radius:34px;overflow:hidden;position:relative;
+              border:1px solid var(--line);width:295px;height:640px}
+  .alert-bg{position:absolute;inset:0;backdrop-filter:blur(2px)}
+  .alert-sheet{position:absolute;left:0;right:0;bottom:0;border-radius:26px 26px 0 0;
+               padding:8px 20px 30px}
+  .grab{width:34px;height:4px;border-radius:2px;margin:0 auto 18px}
+  .alert-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;
+               font-weight:700;letter-spacing:.7px;text-transform:uppercase;
+               padding:5px 10px;border-radius:6px;margin-bottom:14px}
+  .alert-h{font-size:22px;font-weight:750;letter-spacing:-.7px;line-height:1.2;
+           margin-bottom:9px}
+  .alert-p{font-size:13px;line-height:1.6;opacity:.75;margin-bottom:18px}
+  .alert-actions{display:flex;gap:10px}
+  .btn{flex:1;height:48px;border-radius:13px;display:flex;align-items:center;
+       justify-content:center;font-size:14px;font-weight:650;letter-spacing:-.1px}
+  .btn.ghost{font-weight:550}
+
+  .verdict{margin-top:18px;font-size:12.5px;color:var(--t2);line-height:1.72;
+           padding:14px 16px;background:var(--panel);border-radius:11px;
+           border:1px solid var(--line);max-width:940px}
+  .verdict b{color:var(--t1);font-weight:650}
+  .verdict .k{font-family:var(--mono);font-size:11.5px;color:var(--t3)}
+
+  /* ============ 方案 A：暖陶 ============ */
+  .A .phone,.A .alertphone{background:#17140F}
+  .A .sbar{color:#EFE7DA}
+  .A .hero{background:linear-gradient(140deg,#C2643F 0%,#A3472C 100%);color:#FFF4EC}
+  .A .mini{background:#221D16}
+  .A .mini .k{color:#D08A65}
+  .A .mini .v{color:#F2EAE0}
+  .A .mini .d{color:#9A8B79}
+  .A .list{background:#221D16}
+  .A .li{color:#E4DACB}
+  .A .li .r{color:#8E8071}
+  .A .pill{background:#221D16;border:1px solid #322A20}
+  .A .tab.on{background:#C2643F;color:#FFF4EC}
+  .A .tab{color:#8E8071}
+  .A .navrow .t{color:#EFE7DA}
+  .A .alert-bg{background:rgba(23,20,15,.75)}
+  .A .alert-sheet{background:#221D16;border-top:1px solid #322A20}
+  .A .grab{background:#3D3428}
+  .A .alert-badge{background:rgba(194,100,63,.16);color:#E0885F}
+  .A .alert-h{color:#F5EEE4}
+  .A .alert-p{color:#B9AB98}
+  .A .btn{background:#C2643F;color:#FFF4EC}
+  .A .btn.ghost{background:transparent;color:#B9AB98;border:1px solid #322A20}
+
+  /* ============ 方案 B：石墨电蓝 ============ */
+  .B .phone,.B .alertphone{background:#0D0F11}
+  .B .sbar{color:#E6E9ED}
+  .B .hero{background:#141719;border:1px solid #23282C;color:#E6E9ED}
+  .B .hero .big{color:#EDF1F5}
+  .B .hero .accentline{position:absolute;left:0;top:0;bottom:0;width:3px;
+                       background:#3B82C4}
+  .B .mini{background:#141719;border:1px solid #23282C}
+  .B .mini .k{color:#6F7B86}
+  .B .mini .v{color:#E6E9ED}
+  .B .mini .d{color:#5E6771}
+  .B .list{background:#141719;border:1px solid #23282C}
+  .B .li{color:#CFD5DB}
+  .B .li .r{color:#5E6771}
+  .B .pill{background:#141719;border:1px solid #23282C}
+  .B .tab.on{background:#3B82C4;color:#0D0F11}
+  .B .tab{color:#5E6771}
+  .B .navrow .t{color:#E6E9ED}
+  .B .alert-bg{background:rgba(13,15,17,.78)}
+  .B .alert-sheet{background:#141719;border-top:1px solid #23282C}
+  .B .grab{background:#2B3238}
+  .B .alert-badge{background:rgba(59,130,196,.15);color:#5FA4E0}
+  .B .alert-h{color:#EDF1F5}
+  .B .alert-p{color:#98A2AC}
+  .B .btn{background:#3B82C4;color:#0D0F11}
+  .B .btn.ghost{background:transparent;color:#98A2AC;border:1px solid #23282C}
+
+  /* ============ 方案 C：玻璃浅色 ============ */
+  .C .phone,.C .alertphone{background:#F4F5F7}
+  .C .sbar{color:#1B1E22}
+  .C .hero{background:#FFFFFF;border:1px solid #E4E6EA;color:#1B1E22;
+           box-shadow:0 1px 2px rgba(20,24,30,.04),0 8px 24px -12px rgba(20,24,30,.10)}
+  .C .hero .big{color:#111417}
+  .C .hero .sub{color:#5C6470}
+  .C .hero .plate{border-color:#DDE0E5;color:#3A414B}
+  .C .mini{background:#FFFFFF;border:1px solid #E4E6EA}
+  .C .mini .k{color:#8890A0}
+  .C .mini .v{color:#1B1E22}
+  .C .mini .d{color:#8890A0}
+  .C .list{background:#FFFFFF;border:1px solid #E4E6EA}
+  .C .li{color:#242A33}
+  .C .li + .li{border-top:1px solid #EDEFF3}
+  .C .li .r{color:#8890A0}
+  .C .pill{background:#FFFFFF;border:1px solid #E4E6EA;
+           box-shadow:0 2px 10px -4px rgba(20,24,30,.14)}
+  .C .tab.on{background:#1B1E22;color:#FFFFFF}
+  .C .tab{color:#8890A0}
+  .C .navrow .t{color:#1B1E22}
+  .C .navrow .ic{color:#8890A0}
+  .C .alert-bg{background:rgba(28,32,38,.34);backdrop-filter:blur(10px)}
+  .C .alert-sheet{background:#FFFFFF;border-top:1px solid #E4E6EA;
+                  box-shadow:0 -20px 50px -20px rgba(20,24,30,.24)}
+  .C .grab{background:#DDE0E5}
+  .C .alert-badge{background:#EAF2FA;color:#2563A8}
+  .C .alert-h{color:#111417}
+  .C .alert-p{color:#5C6470}
+  .C .btn{background:#1B1E22;color:#FFFFFF}
+  .C .btn.ghost{background:transparent;color:#5C6470;border:1px solid #DDE0E5}
+
+  .foot{margin-top:56px;padding-top:26px;border-top:1px solid var(--line);
+        font-size:12px;color:var(--t3);line-height:1.8}
+  .foot b{color:var(--t2);font-weight:600}
+  .foot code{font-family:var(--mono);font-size:11px;color:var(--t2);
+             background:var(--panel);padding:1px 5px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="doc-head">
+    <h1>TailLimit 视觉方向</h1>
+    <span class="sub">3 OPTIONS · iPhone 17 Pro · 402×874pt</span>
+  </div>
+  <p class="rule-note">
+    三个方向均为「重新设计」，不沿用现有深空灰 <code>#1A1A1A</code> + 香槟金 <code>#C9A96E</code>。
+    每套都包含：色板、首页（今日限行状态）、引导页、强提醒弹层。
+    全部遵守 Ardot 规范：无纯黑、无霓虹辉光、无 AI 紫、单强调色、饱和度和 #000 均已避开。
+  </p>
+
+  <!-- =========================================================
+       方案 A
+  ========================================================== -->
+  <section class="opt A">
+    <div class="opt-head">
+      <span class="opt-idx">A</span>
+      <div>
+        <h2>暖陶 Warm Terracotta</h2>
+        <p>以陶土橙为唯一强调色，底色用偏暖的深棕黑。整体气质偏「手作、可靠、不刺眼」——
+        限行提醒本质是个每天看一眼的工具，暖色在夜间强提醒场景下比冷色更不惊扰。</p>
+        <div class="tagline">accent #C2643F · base #17140F · DESIGN_VARIANCE 6</div>
+      </div>
+    </div>
+
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#17140F"></div>
+        <div class="meta"><span class="nm">bg</span><span class="hx">#17140F</span></div></div>
+      <div class="sw"><div class="chip" style="background:#221D16"></div>
+        <div class="meta"><span class="nm">surface</span><span class="hx">#221D16</span></div></div>
+      <div class="sw"><div class="chip" style="background:#322A20"></div>
+        <div class="meta"><span class="nm">outline</span><span class="hx">#322A20</span></div></div>
+      <div class="sw"><div class="chip" style="background:#C2643F"></div>
+        <div class="meta"><span class="nm">accent</span><span class="hx">#C2643F</span></div></div>
+      <div class="sw"><div class="chip" style="background:#6E8F72"></div>
+        <div class="meta"><span class="nm">clear</span><span class="hx">#6E8F72</span></div></div>
+      <div class="sw"><div class="chip" style="background:#F2EAE0"></div>
+        <div class="meta"><span class="nm">text</span><span class="hx">#F2EAE0</span></div></div>
+    </div>
+
+    <div class="screens">
+      <!-- 首页 -->
+      <div class="screen">
+        <div class="cap">HOME · 今日限行状态</div>
+        <div class="phone">
+          <div class="isl"></div>
+          <div class="sbar"><span>9:41</span><span>5G ▮▮▮</span></div>
+          <div class="body">
+            <div class="navrow"><span class="t">今日限行</span><span class="ic">◍</span></div>
+            <div class="hero">
+              <div class="plate">京A·5F72Q</div>
+              <div class="k">Thursday · 10月9日</div>
+              <div class="big">尾号 2 和 7</div>
+              <div class="sub">今天 07:00–20:00 五环路以内限行<br>你的车牌尾号 <b>7</b>，今日不可通行</div>
+            </div>
+            <div class="gap"></div>
+            <div class="row2">
+              <div class="mini"><div class="k">明日</div><div class="v">不限行</div>
+                <div class="d">尾号 3, 8</div></div>
+              <div class="mini"><div class="k">数据源</div><div class="v">实时</div>
+                <div class="d">2 分钟前</div></div>
+            </div>
+            <div class="gap"></div>
+            <div class="list">
+              <div class="li"><span class="l"><span class="dot" style="background:#C2643F"></span>北京 · 五环内</span><span class="r">限行中</span></div>
+              <div class="li"><span class="l"><span class="dot" style="background:#6E8F72"></span>天津 · 外环内</span><span class="r">不限行</span></div>
+            </div>
+            <div class="tabwrap">
+              <div class="pill">
+                <div class="tab on"><span class="i">◉</span><span class="l">Today</span></div>
+                <div class="tab"><span class="i">▦</span><span class="l">Calendar</span></div>
+                <div class="tab"><span class="i">◫</span><span class="l">Cars</span></div>
+                <div class="tab"><span class="i">◎</span><span class="l">Settings</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 引导页 -->
+      <div class="screen">
+        <div class="cap">ONBOARDING · 第 2 步 / 共 3 步</div>
+        <div class="phone">
+          <div class="isl"></div>
+          <div class="sbar"><span>9:41</span><span>5G ▮▮▮</span></div>
+          <div class="body">
+            <div class="navrow"><span class="t" style="opacity:.45">‹</span>
+              <span class="ic">跳过</span></div>
+            <div style="display:flex;gap:6px;margin-bottom:26px">
+              <span style="width:22px;height:3px;border-radius:2px;background:#C2643F"></span>
+              <span style="width:22px;height:3px;border-radius:2px;background:#C2643F"></span>
+              <span style="width:22px;height:3px;border-radius:2px;background:#322A20"></span>
+            </div>
+            <div style="font-size:26px;font-weight:750;letter-spacing:-1px;line-height:1.22;
+                        margin-bottom:12px;color:#F5EEE4">绑定你的车牌</div>
+            <div style="font-size:13.5px;line-height:1.65;color:#9A8B79;margin-bottom:30px">
+              我们只按尾号判断限行，车牌不会上传到任何服务器。</div>
+            <div style="font-size:11px;font-weight:650;letter-spacing:.4px;
+                        color:#D08A65;margin-bottom:8px">车牌号</div>
+            <div style="background:#221D16;border:1px solid #C2643F;border-radius:13px;
+                        padding:15px 16px;font-family:var(--mono);font-size:17px;
+                        letter-spacing:2.5px;color:#F2EAE0;margin-bottom:7px">
+              京A·5F72Q<span style="border-left:1.5px solid #C2643F;margin-left:1px"></span></div>
+            <div style="font-size:11.5px;color:#8E8071;margin-bottom:22px">
+              已自动识别为新能源绿牌</div>
+            <div style="font-size:11px;font-weight:650;letter-spacing:.4px;
+                        color:#D08A65;margin-bottom:8px">备注名（可选）</div>
+            <div style="background:#221D16;border:1px solid #322A20;border-radius:13px;
+                        padding:15px 16px;font-size:14px;color:#6E6255">通勤车</div>
+            <div class="tabwrap">
+              <div class="btn" style="background:#C2643F;color:#FFF4EC">下一步</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 强提醒 -->
+      <div class="screen">
+        <div class="cap">STRONG ALERT · 限行当日 07:00</div>
+        <div class="alertphone">
+          <div class="isl"></div>
+          <div class="alert-bg"></div>
+          <div style="position:absolute;inset:0;background:#17140F;opacity:.86"></div>
+          <div class="sbar" style="position:relative;z-index:2;color:#EFE7DA">
+            <span>7:00</span><span>5G ▮▮▮</span></div>
+          <div class="alert-sheet">
+            <div class="grab"></div>
+            <div class="alert-badge">⚑ 今日限行 · 强提醒</div>
+            <div class="alert-h">京A·5F72Q<br>今天不能进五环</div>
+            <div class="alert-p">07:00–20:00 尾号 2 和 7 限行。<br>你的尾号是 7。</div>
+            <div style="background:#2A231A;border-radius:11px;padding:12px 14px;
+                        margin-bottom:18px;display:flex;justify-content:space-between;
+                        align-items:center">
+              <span style="font-size:12px;color:#B9AB98">语音播报已开启</span>
+              <span style="font-size:11px;font-family:var(--mono);color:#E0885F">ON</span>
+            </div>
+            <div class="alert-actions">
+              <div class="btn ghost">知道了</div>
+              <div class="btn">看详情</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict">
+      <b>适合：</b>把它当成「每天扫一眼」的工具，而不是需要持续关注的仪表盘。
+      暖陶橙在夜间全屏亮起时观感柔和，不会像高饱和红那样造成不适。
+      <span class="k">风险：</span>暖色系在强提醒的「紧急性」传达上弱于冷色，需要靠文案和图形补足。
+    </div>
+  </section>
+
+  <!-- =========================================================
+       方案 B
+  ========================================================== -->
+  <section class="opt B">
+    <div class="opt-head">
+      <span class="opt-idx">B</span>
+      <div>
+        <h2>石墨电蓝 Graphite Electric</h2>
+        <p>冷调石墨底 + 电蓝强调色，接近汽车仪表盘的色觉语言。限定判定用一条竖标记线承载，
+        而非整块色卡——数据更克制，也更容易在车机宽屏上延展。</p>
+        <div class="tagline">accent #3B82C4 · base #0D0F11 · DESIGN_VARIANCE 7</div>
+      </div>
+    </div>
+
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#0D0F11"></div>
+        <div class="meta"><span class="nm">bg</span><span class="hx">#0D0F11</span></div></div>
+      <div class="sw"><div class="chip" style="background:#141719"></div>
+        <div class="meta"><span class="nm">surface</span><span class="hx">#141719</span></div></div>
+      <div class="sw"><div class="chip" style="background:#23282C"></div>
+        <div class="meta"><span class="nm">outline</span><span class="hx">#23282C</span></div></div>
+      <div class="sw"><div class="chip" style="background:#3B82C4"></div>
+        <div class="meta"><span class="nm">accent</span><span class="hx">#3B82C4</span></div></div>
+      <div class="sw"><div class="chip" style="background:#4E9A6E"></div>
+        <div class="meta"><span class="nm">clear</span><span class="hx">#4E9A6E</span></div></div>
+      <div class="sw"><div class="chip" style="background:#EDF1F5"></div>
+        <div class="meta"><span class="nm">text</span><span class="hx">#EDF1F5</span></div></div>
+    </div>
+
+    <div class="screens">
+      <div class="screen">
+        <div class="cap">HOME · 今日限行状态</div>
+        <div class="phone">
+          <div class="isl"></div>
+          <div class="sbar"><span>9:41</span><span>5G ▮▮▮</span></div>
+          <div class="body">
+            <div class="navrow"><span class="t">今日限行</span><span class="ic">◍</span></div>
+            <div class="hero">
+              <div class="accentline"></div>
+              <div class="plate">京A·5F72Q</div>
+              <div class="k">Thursday · 10月9日</div>
+              <div class="big">尾号 2 和 7</div>
+              <div class="sub">今天 07:00–20:00 五环路以内限行<br>你的车牌尾号 <b>7</b>，今日不可通行</div>
+            </div>
+            <div class="gap"></div>
+            <div class="row2">
+              <div class="mini"><div class="k">明日</div><div class="v">不限行</div>
+                <div class="d">尾号 3, 8</div></div>
+              <div class="mini"><div class="k">数据源</div><div class="v">实时</div>
+                <div class="d">2 分钟前</div></div>
+            </div>
+            <div class="gap"></div>
+            <div class="list">
+              <div class="li"><span class="l"><span class="dot" style="background:#3B82C4"></span>北京 · 五环内</span><span class="r">限行中</span></div>
+              <div class="li"><span class="l"><span class="dot" style="background:#4E9A6E"></span>天津 · 外环内</span><span class="r">不限行</span></div>
+            </div>
+            <div class="tabwrap">
+              <div class="pill">
+                <div class="tab on"><span class="i">◉</span><span class="l">Today</span></div>
+                <div class="tab"><span class="i">▦</span><span class="l">Calendar</span></div>
+                <div class="tab"><span class="i">◫</span><span class="l">Cars</span></div>
+                <div class="tab"><span class="i">◎</span><span class="l">Settings</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="cap">ONBOARDING · 第 2 步 / 共 3 步</div>
+        <div class="phone">
+          <div class="isl"></div>
+          <div class="sbar"><span>9:41</span><span>5G ▮▮▮</span></div>
+          <div class="body">
+            <div class="navrow"><span class="t" style="opacity:.45">‹</span>
+              <span class="ic">跳过</span></div>
+            <div style="display:flex;gap:6px;margin-bottom:26px">
+              <span style="width:22px;height:3px;border-radius:2px;background:#3B82C4"></span>
+              <span style="width:22px;height:3px;border-radius:2px;background:#3B82C4"></span>
+              <span style="width:22px;height:3px;border-radius:2px;background:#23282C"></span>
+            </div>
+            <div style="font-size:26px;font-weight:750;letter-spacing:-1px;line-height:1.22;
+                        margin-bottom:12px;color:#EDF1F5">绑定你的车牌</div>
+            <div style="font-size:13.5px;line-height:1.65;color:#98A2AC;margin-bottom:30px">
+              我们只按尾号判断限行，车牌不会上传到任何服务器。</div>
+            <div style="font-size:11px;font-weight:650;letter-spacing:.4px;
+                        color:#6F7B86;margin-bottom:8px">车牌号</div>
+            <div style="background:#141719;border:1px solid #3B82C4;border-radius:13px;
+                        padding:15px 16px;font-family:var(--mono);font-size:17px;
+                        letter-spacing:2.5px;color:#EDF1F5;margin-bottom:7px">
+              京A·5F72Q<span style="border-left:1.5px solid #3B82C4;margin-left:1px"></span></div>
+            <div style="font-size:11.5px;color:#5E6771;margin-bottom:22px">
+              已自动识别为新能源绿牌</div>
+            <div style="font-size:11px;font-weight:650;letter-spacing:.4px;
+                        color:#6F7B86;margin-bottom:8px">备注名（可选）</div>
+            <div style="background:#141719;border:1px solid #23282C;border-radius:13px;
+                        padding:15px 16px;font-size:14px;color:#4E5761">通勤车</div>
+            <div class="tabwrap">
+              <div class="btn" style="background:#3B82C4;color:#0D0F11">下一步</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="cap">STRONG ALERT · 限行当日 07:00</div>
+        <div class="alertphone">
+          <div class="isl"></div>
+          <div style="position:absolute;inset:0;background:#0D0F11;opacity:.9"></div>
+          <div class="sbar" style="position:relative;z-index:2;color:#E6E9ED">
+            <span>7:00</span><span>5G ▮▮▮</span></div>
+          <div class="alert-sheet">
+            <div class="grab"></div>
+            <div class="alert-badge">⚑ 今日限行 · 强提醒</div>
+            <div class="alert-h">京A·5F72Q<br>今天不能进五环</div>
+            <div class="alert-p">07:00–20:00 尾号 2 和 7 限行。<br>你的尾号是 7。</div>
+            <div style="background:#1A1E21;border-radius:11px;padding:12px 14px;
+                        margin-bottom:18px;display:flex;justify-content:space-between;
+                        align-items:center">
+              <span style="font-size:12px;color:#98A2AC">语音播报已开启</span>
+              <span style="font-size:11px;font-family:var(--mono);color:#5FA4E0">ON</span>
+            </div>
+            <div class="alert-actions">
+              <div class="btn ghost">知道了</div>
+              <div class="btn">看详情</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict">
+      <b>适合：</b>跨端一致性最好的一套——手机、车机、鸿蒙用同一套语义色，车机宽屏上只需把
+      <span class="k">竖标记线</span> 换成横向布局即可。电蓝在深色底上的对比度足够传达「需要注意」而不到「惊慌」。
+      <span class="k">风险：</span>冷蓝是工具类 App 的常见选择，需要通过排版和留白做出辨识度。
+    </div>
+  </section>
+
+  <!-- =========================================================
+       方案 C
+  ========================================================== -->
+  <section class="opt C">
+    <div class="opt-head">
+      <span class="opt-idx">C</span>
+      <div>
+        <h2>玻璃浅色 Glass Light</h2>
+        <p>全浅色底 + 白色浮层卡片 + 极轻扩散阴影。这个方向上「玻璃质感」才有意义——
+        Ardot 规范里 Liquid Glass 要求 1px 内描边 + 内阴影模拟折射，浅色底更容易做出通透感。</p>
+        <div class="tagline">accent #1B1E22 · base #F4F5F7 · DESIGN_VARIANCE 5</div>
+      </div>
+    </div>
+
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#F4F5F7"></div>
+        <div class="meta"><span class="nm">bg</span><span class="hx">#F4F5F7</span></div></div>
+      <div class="sw"><div class="chip" style="background:#FFFFFF"></div>
+        <div class="meta"><span class="nm">surface</span><span class="hx">#FFFFFF</span></div></div>
+      <div class="sw"><div class="chip" style="background:#E4E6EA"></div>
+        <div class="meta"><span class="nm">outline</span><span class="hx">#E4E6EA</span></div></div>
+      <div class="sw"><div class="chip" style="background:#1B1E22"></div>
+        <div class="meta"><span class="nm">ink</span><span class="hx">#1B1E22</span></div></div>
+      <div class="sw"><div class="chip" style="background:#C0392B"></div>
+        <div class="meta"><span class="nm">alert</span><span class="hx">#C0392B</span></div></div>
+      <div class="sw"><div class="chip" style="background:#2563A8"></div>
+        <div class="meta"><span class="nm">info</span><span class="hx">#2563A8</span></div></div>
+    </div>
+
+    <div class="screens">
+      <div class="screen">
+        <div class="cap">HOME · 今日限行状态</div>
+        <div class="phone">
+          <div class="isl"></div>
+          <div class="sbar"><span>9:41</span><span>5G ▮▮▮</span></div>
+          <div class="body">
+            <div class="navrow"><span class="t">今日限行</span><span class="ic">◍</span></div>
+            <div class="hero">
+              <div class="plate">京A·5F72Q</div>
+              <div class="k" style="color:#8890A0">Thursday · 10月9日</div>
+              <div class="big">尾号 2 和 7</div>
+              <div class="sub">今天 07:00–20:00 五环路以内限行<br>你的车牌尾号 <b style="color:#C0392B">7</b>，今日不可通行</div>
+            </div>
+            <div class="gap"></div>
+            <div class="row2">
+              <div class="mini"><div class="k">明日</div><div class="v">不限行</div>
+                <div class="d">尾号 3, 8</div></div>
+              <div class="mini"><div class="k">数据源</div><div class="v">实时</div>
+                <div class="d">2 分钟前</div></div>
+            </div>
+            <div class="gap"></div>
+            <div class="list">
+              <div class="li"><span class="l"><span class="dot" style="background:#C0392B"></span>北京 · 五环内</span><span class="r">限行中</span></div>
+              <div class="li"><span class="l"><span class="dot" style="background:#2E7D4F"></span>天津 · 外环内</span><span class="r">不限行</span></div>
+            </div>
+            <div class="tabwrap">
+              <div class="pill">
+                <div class="tab on"><span class="i">◉</span><span class="l">Today</span></div>
+                <div class="tab"><span class="i">▦</span><span class="l">Calendar</span></div>
+                <div class="tab"><span class="i">◫</span><span class="l">Cars</span></div>
+                <div class="tab"><span class="i">◎</span><span class="l">Settings</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="cap">ONBOARDING · 第 2 步 / 共 3 步</div>
+        <div class="phone">
+          <div class="isl"></div>
+          <div class="sbar"><span>9:41</span><span>5G ▮▮▮</span></div>
+          <div class="body">
+            <div class="navrow"><span class="t" style="opacity:.4">‹</span>
+              <span class="ic">跳过</span></div>
+            <div style="display:flex;gap:6px;margin-bottom:26px">
+              <span style="width:22px;height:3px;border-radius:2px;background:#1B1E22"></span>
+              <span style="width:22px;height:3px;border-radius:2px;background:#1B1E22"></span>
+              <span style="width:22px;height:3px;border-radius:2px;background:#E4E6EA"></span>
+            </div>
+            <div style="font-size:26px;font-weight:750;letter-spacing:-1px;line-height:1.22;
+                        margin-bottom:12px;color:#111417">绑定你的车牌</div>
+            <div style="font-size:13.5px;line-height:1.65;color:#5C6470;margin-bottom:30px">
+              我们只按尾号判断限行，车牌不会上传到任何服务器。</div>
+            <div style="font-size:11px;font-weight:650;letter-spacing:.4px;
+                        color:#5C6470;margin-bottom:8px">车牌号</div>
+            <div style="background:#FFFFFF;border:1px solid #1B1E22;border-radius:13px;
+                        padding:15px 16px;font-family:var(--mono);font-size:17px;
+                        letter-spacing:2.5px;color:#111417;margin-bottom:7px">
+              京A·5F72Q<span style="border-left:1.5px solid #1B1E22;margin-left:1px"></span></div>
+            <div style="font-size:11.5px;color:#8890A0;margin-bottom:22px">
+              已自动识别为新能源绿牌</div>
+            <div style="font-size:11px;font-weight:650;letter-spacing:.4px;
+                        color:#5C6470;margin-bottom:8px">备注名（可选）</div>
+            <div style="background:#FFFFFF;border:1px solid #E4E6EA;border-radius:13px;
+                        padding:15px 16px;font-size:14px;color:#A8AEB8">通勤车</div>
+            <div class="tabwrap">
+              <div class="btn">下一步</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="cap">STRONG ALERT · 限行当日 07:00</div>
+        <div class="alertphone">
+          <div class="isl"></div>
+          <div style="position:absolute;inset:0;background:rgba(28,32,38,.34);backdrop-filter:blur(9px)"></div>
+          <div class="sbar" style="position:relative;z-index:2;color:#fff">
+            <span>7:00</span><span>5G ▮▮▮</span></div>
+          <div class="alert-sheet">
+            <div class="grab"></div>
+            <div class="alert-badge">⚑ 今日限行 · 强提醒</div>
+            <div class="alert-h">京A·5F72Q<br>今天不能进五环</div>
+            <div class="alert-p">07:00–20:00 尾号 2 和 7 限行。<br>你的尾号是 7。</div>
+            <div style="background:#F4F5F7;border-radius:11px;padding:12px 14px;
+                        margin-bottom:18px;display:flex;justify-content:space-between;
+                        align-items:center">
+              <span style="font-size:12px;color:#5C6470">语音播报已开启</span>
+              <span style="font-size:11px;font-family:var(--mono);color:#2563A8">ON</span>
+            </div>
+            <div class="alert-actions">
+              <div class="btn ghost">知道了</div>
+              <div class="btn">看详情</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict">
+      <b>适合：</b>日间可用性最好，也是唯一能真正做出「Liquid Glass」材质感的方向。
+      iOS 平台观感最自然。
+      <span class="k">风险：</span>强提醒场景通常是凌晨/清晨，浅色全屏弹层在暗环境下刺眼；
+      且违背了现有 Flutter 实现全深色的前提，改动量最大。
+    </div>
+  </section>
+
+  <div class="foot">
+    <b>说明</b><br>
+    本页是<b>视觉方向预览</b>，不是最终设计稿——用 HTML 精确还原了三套方案的配色、字阶、间距与组件形态，
+    在浏览器里即可实时对比。选定方向后我会：
+    <br>① 产出该方向的完整 Design Tokens（Ardot 变量集 + Flutter 主题映射）
+    <br>② 产出符合 Ardot 规范的画布构建脚本（<code>batch_edit</code> 语句序列，≤25 ops/批）
+    <br>③ 在你本地 Ardot 桌面端接入 MCP 后，直接由我操作画布生成
+    <br><br>
+    <b>Ardot 规范合规检查</b>：无 <code>#000000</code> 纯黑 ✓ · 无霓虹/外发光 ✓ · 无 AI 紫 ✓ ·
+    单强调色且饱和度 &lt; 80% ✓ · 无 Inter 字体 ✓ · 无三等分卡片布局 ✓
+  </div>
+
+</div>
+</body>
+</html>

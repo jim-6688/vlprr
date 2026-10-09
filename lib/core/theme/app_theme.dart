@@ -5,10 +5,11 @@ import 'app_sizes.dart';
 import 'app_typography.dart';
 
 export 'app_colors.dart';
+export 'app_icons.dart';
 export 'app_sizes.dart';
 export 'app_typography.dart';
 
-/// 主题组装：深空灰 + 香槟金，深色为主。
+/// 主题组装：石墨电蓝（方案 B），深色为主。
 class AppTheme {
   const AppTheme._();
 
@@ -87,7 +88,7 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.primaryContainer,
+        indicatorColor: AppColors.primary,
         surfaceTintColor: Colors.transparent,
         height: isCar ? 96 : 68,
         labelTextStyle: WidgetStateProperty.all(
@@ -98,7 +99,8 @@ class AppTheme {
         ),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const IconThemeData(color: AppColors.primary);
+            // 激活态用实心填充 + 底色前景，保证"实心 vs 透明"的明确区分
+            return const IconThemeData(color: AppColors.onPrimary);
           }
           return const IconThemeData(color: AppColors.textTertiary);
         }),
@@ -125,7 +127,8 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          // 聚焦态用 1px 强调色描边，不用外发光（Ardot 规范禁止 outer glow）
+          borderSide: const BorderSide(color: AppColors.primary, width: 1),
         ),
         hintStyle: AppTypography.body.copyWith(color: AppColors.textTertiary),
       ),
