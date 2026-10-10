@@ -6,6 +6,13 @@ import 'dart:math' as math;
 /// 白噪音类型。
 ///
 /// [waveform] 决定合成算法，[defaultDurationSeconds] 是首次播放的默认时长。
+///
+/// 分为两类：
+/// - **合成音**（[isSynthesized] 为 true）：实时生成，体积为零、可无缝循环；
+/// - **实录音**（为 false）：内置真实录音，自然度更高，但需要打包资源。
+///
+/// 已切换为实录的音色保留同名合成算法作为降级路径——资源缺失时
+/// 仍能发声，不至于让整个页面哑掉。
 enum NoiseKind {
   /// 白噪音——全频段等功率，最"亮"，掩盖力最强。
   white('白噪音', 'wi', 1800),
@@ -19,10 +26,10 @@ enum NoiseKind {
   /// 雨声——滤波白噪 + 低通，最常用于助眠。
   rain('雨声', 'ra', 2700),
 
-  /// 海浪——慢速包络调制的粉噪，0.08–0.15Hz 的起伏周期。
+  /// 海浪——实录海岸浪涛。录音本身首尾波形连续，循环无接缝。
   waves('海浪', 'wa', 2700),
 
-  /// 篝火——棕噪 + 随机爆裂脉冲。
+  /// 篝火——实录柴火燃烧。已做 4秒等功率交叉淡化，循环无接缝。
   campfire('篝火', 'ca', 2700),
 
   /// 夜风——带通噪声 + 缓慢漂移的中心频率。
@@ -43,9 +50,71 @@ enum NoiseKind {
   final int defaultDurationSeconds;
 
   /// 是否为纯合成音（无采样素材）。
+  bool get isSynthesized => switch (this) {
+        NoiseKind.waves || NoiseKind.campfire => false,
+        _ => true,
+      };
+
+  /// 内置音频资源路径；[isSynthesized] 为 true 时为 null。
   ///
-  /// 纯合成音体积为零、可无缝循环，因此不需要打包任何音频文件。
-  bool get isSynthesized => true;
+  /// 统一走 Flutter 的 `AssetManifest` 加载，路径以 `assets/` 开头。
+  String? get assetPath => switch (this) {
+        NoiseKind.waves => 'assets/audio/ocean_waves.ogg',
+        NoiseKind.campfire => 'assets/audio/campfire.ogg',
+        _ => null,
+      };
+
+  /// 音源来源说明，用于「关于」页展示与署名。
+  ///
+  /// 实录音必须可追溯到作者与许可，这是内置音频的合规底线。
+  AudioCredit? get credit => switch (this) {
+        NoiseKind.waves => const AudioCredit(
+            title: '海岸浪涛',
+            author: 'Buk，挂载于 Blanket 音频集',
+            source: 'https://freesound.org/sounds/1313451/',
+            license: 'CC BY 4.0',
+            licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
+          ),
+        NoiseKind.campfire => const AudioCredit(
+            title: '篝火燃烧',
+            author: 'Goodkoalas，挂载于 Blanket 音频集',
+            source: 'https://freesound.org/sounds/3846183/',
+            license: 'CC BY 4.0',
+            licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
+          ),
+        _ => null,
+      };
+}
+
+/// 单条内置音源的署名信息。
+class AudioCredit {
+  const AudioCredit({
+    required this.title,
+    required this.author,
+    required this.source,
+    required this.license,
+    required this.licenseUrl,
+  });
+
+  /// 曲目标题。
+  final String title;
+
+  /// 作者/ 表演者。
+  final String author;
+
+  /// 原始来源链接。
+  final String source;
+
+  /// 许可标识（如 CC BY 4.0）。
+  final String license;
+
+  /// 许可全文链接。
+  final String licenseUrl;
+
+  /// 是否需要署名（CC BY / CC BY-SA 需署名，CC0 / 公有领域不需）。
+  ///
+  /// 需要署名的音源必须在应用内提供展示位置，不能只放在源码注释里。
+  bool get requiresAttribution => license.contains('BY');
 }
 
 /// 睡眠定时器的可选时长。

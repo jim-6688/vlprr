@@ -189,9 +189,59 @@ void main() {
       }
     });
 
-    test('全部为合成音，无需音频素材', () {
+    test('6 种为合成音，2 种为实录音', () {
+      final List<NoiseKind> synth =
+          NoiseKind.values.where((NoiseKind k) => k.isSynthesized).toList();
+      final List<NoiseKind> recorded =
+          NoiseKind.values.where((NoiseKind k) => !k.isSynthesized).toList();
+
+      expect(synth.length, 6);
+      expect(recorded.length, 2);
+      expect(recorded, containsAll(<NoiseKind>[NoiseKind.waves, NoiseKind.campfire]));
+    });
+
+    test('实录音有资源路径，合成音没有', () {
       for (final NoiseKind k in NoiseKind.values) {
-        expect(k.isSynthesized, isTrue, reason: '$k 应为合成音');
+        if (k.isSynthesized) {
+          expect(k.assetPath, isNull, reason: '$k 是合成音，不该有资源路径');
+          expect(k.credit, isNull, reason: '$k 无需署名');
+        } else {
+          expect(k.assetPath, isNotNull, reason: '$k 缺少资源路径');
+          expect(k.assetPath, startsWith('assets/audio/'));
+          expect(k.assetPath, endsWith('.ogg'));
+          expect(k.credit, isNotNull, reason: '$k 必须有署名信息');
+        }
+      }
+    });
+
+    test('实录音资源路径唯一，避免打包时互相覆盖', () {
+      final List<NoiseKind> recorded =
+          NoiseKind.values.where((NoiseKind k) => !k.isSynthesized).toList();
+      final Set<String> paths =
+          recorded.map((NoiseKind k) => k.assetPath!).toSet();
+      expect(paths.length, recorded.length);
+    });
+
+    test('每条实录音都可追溯到作者、来源与许可', () {
+      for (final NoiseKind k in NoiseKind.values) {
+        final AudioCredit? c = k.credit;
+        if (c == null) continue;
+        expect(c.title.trim(), isNotEmpty);
+        expect(c.author.trim(), isNotEmpty, reason: '$c 缺作者，署名不完整');
+        expect(c.source, startsWith('http'), reason: '$c 缺来源链接');
+        expect(c.license.trim(), isNotEmpty);
+        expect(c.licenseUrl, startsWith('https://creativecommons.org/'));
+      }
+    });
+
+    test('CC BY 音源被标记为需要署名', () {
+      // 这是合规硬约束：需要署名的必须能在应用内展示出来，
+      // 不能只写在源码注释里。
+      final Iterable<AudioCredit> credits =
+          NoiseKind.values.map((NoiseKind k) => k.credit).whereType<AudioCredit>();
+      for (final AudioCredit c in credits) {
+        expect(c.requiresAttribution, isTrue,
+            reason: '${c.title} 许可为 ${c.license}，必须署名');
       }
     });
 

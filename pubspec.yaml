@@ -44,3 +44,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    # 白噪音实录音（CC BY 4.0，署名见 lib/domain/entities/noise.dart 的 AudioCredit）
+    # 其余音色为算法实时合成，不占用包体
+    - assets/audio/
